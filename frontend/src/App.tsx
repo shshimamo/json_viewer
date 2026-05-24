@@ -127,7 +127,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <span className="logo">jo</span>
+        <span className="logo">json_viewer</span>
         {displayData !== null && (
           <div className="view-toggle">
             <button

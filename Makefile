@@ -6,13 +6,13 @@ build-frontend:
 	cd frontend && pnpm install && pnpm build
 
 build-backend:
-	go build -o jo .
+	go build -o json_viewer .
 
 kill:
 	-lsof -ti:6276 | xargs kill
 
 clean:
-	rm -f jo
+	rm -f json_viewer
 	rm -rf frontend/dist
 
 restart: kill clean build

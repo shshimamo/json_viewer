@@ -1,4 +1,4 @@
-module github.com/shshimamo/jo
+module github.com/shshimamo/json_viewer
 
 go 1.26
 

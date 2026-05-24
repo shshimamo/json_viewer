@@ -39,19 +39,19 @@ var (
 )
 
 func savedDir() string {
-	if d := os.Getenv("JO_DIR"); d != "" {
+	if d := os.Getenv("JSON_VIEWER_DIR"); d != "" {
 		return d
 	}
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".jo", "files")
+	return filepath.Join(home, ".json_viewer", "files")
 }
 
 func templateDir() string {
-	if d := os.Getenv("JO_TEMPLATE_DIR"); d != "" {
+	if d := os.Getenv("JSON_VIEWER_TEMPLATE_DIR"); d != "" {
 		return d
 	}
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, ".jo", "templates")
+	return filepath.Join(home, ".json_viewer", "templates")
 }
 
 type TemplateFile struct {
@@ -89,7 +89,7 @@ func main() {
 		for _, arg := range args {
 			abs, err := filepath.Abs(arg)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "jo: %v\n", err)
+				fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 				continue
 			}
 			resp, err := http.Post(
@@ -97,7 +97,7 @@ func main() {
 				"", nil,
 			)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "jo: %v\n", err)
+				fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 				continue
 			}
 			resp.Body.Close()
@@ -109,7 +109,7 @@ func main() {
 	// Spawn server in background
 	exe, err := os.Executable()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "jo: %v\n", err)
+		fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -117,7 +117,7 @@ func main() {
 	for _, arg := range args {
 		abs, err := filepath.Abs(arg)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "jo: %v\n", err)
+			fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 			os.Exit(1)
 		}
 		serverArgs = append(serverArgs, abs)
@@ -125,7 +125,7 @@ func main() {
 
 	cmd := exec.Command(exe, serverArgs...)
 	if err := cmd.Start(); err != nil {
-		fmt.Fprintf(os.Stderr, "jo: failed to start server: %v\n", err)
+		fmt.Fprintf(os.Stderr, "json_viewer: failed to start server: %v\n", err)
 		os.Exit(1)
 	}
 	cmd.Process.Release()
@@ -349,7 +349,7 @@ func runServer(cliArgs []string) {
 
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "jo: %v\n", err)
+		fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 		os.Exit(1)
 	}
 
