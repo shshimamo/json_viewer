@@ -1,4 +1,4 @@
-.PHONY: build build-frontend build-backend kill clean rebuild
+.PHONY: build build-frontend build-backend kill clean restart
 
 build: build-frontend build-backend
 
@@ -15,4 +15,4 @@ clean:
 	rm -f jo
 	rm -rf frontend/dist
 
-rebuild: kill clean build
+restart: kill clean build
