@@ -2,8 +2,10 @@ import { useEffect, useState, useCallback } from 'react'
 import './index.css'
 import Sidebar, { type FileEntry } from './Sidebar'
 import JsonViewer from './JsonViewer'
+import TableViewer from './TableViewer'
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
+type ViewMode = 'tree' | 'table'
 
 export default function App() {
   const [entries, setEntries] = useState<FileEntry[]>([])
@@ -11,6 +13,7 @@ export default function App() {
   const [data, setData] = useState<JsonValue | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [viewMode, setViewMode] = useState<ViewMode>('tree')
 
   useEffect(() => {
     fetch('/api/files')
@@ -101,6 +104,18 @@ export default function App() {
     <div className="app">
       <header className="header">
         <span className="logo">jo</span>
+        {data !== null && (
+          <div className="view-toggle">
+            <button
+              className={`view-btn${viewMode === 'tree' ? ' active' : ''}`}
+              onClick={() => setViewMode('tree')}
+            >Tree</button>
+            <button
+              className={`view-btn${viewMode === 'table' ? ' active' : ''}`}
+              onClick={() => setViewMode('table')}
+            >Table</button>
+          </div>
+        )}
       </header>
       <div className="body">
         <Sidebar
@@ -113,7 +128,8 @@ export default function App() {
         <main className="main">
           {isDragging && <div className="drop-overlay">Drop JSON file here</div>}
           {error && <div className="error">{error}</div>}
-          {data !== null && <div className="tree"><JsonViewer value={data} /></div>}
+          {data !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={data} /></div>}
+          {data !== null && viewMode === 'table' && <TableViewer value={data} />}
           {!isDragging && !error && data === null && entries.length === 0 && (
             <div className="empty-hint">Drop a JSON file or paste JSON (Ctrl+V / Cmd+V)</div>
           )}

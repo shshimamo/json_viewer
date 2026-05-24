@@ -1,0 +1,72 @@
+{
+  "company": {
+    "name": "Acme Corp",
+    "founded": 2010,
+    "active": true,
+    "address": {
+      "country": "Japan",
+      "city": "Tokyo",
+      "zip": "100-0001",
+      "geo": {
+        "lat": 35.6895,
+        "lng": 139.6917
+      }
+    },
+    "departments": [
+      {
+        "name": "Engineering",
+        "headcount": 42,
+        "lead": {
+          "name": "Alice",
+          "email": "alice@acme.example",
+          "skills": ["Go", "TypeScript", "Kubernetes"]
+        },
+        "projects": [
+          {
+            "id": "proj-1",
+            "title": "Platform v2",
+            "status": "active",
+            "milestones": [
+              { "name": "Design", "done": true },
+              { "name": "Implementation", "done": true },
+              { "name": "Release", "done": false }
+            ]
+          },
+          {
+            "id": "proj-2",
+            "title": "Observability",
+            "status": "planning",
+            "milestones": [
+              { "name": "Design", "done": false }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Marketing",
+        "headcount": 18,
+        "lead": {
+          "name": "Bob",
+          "email": "bob@acme.example",
+          "skills": ["SEO", "Content", "Analytics"]
+        },
+        "projects": [
+          {
+            "id": "proj-3",
+            "title": "Q3 Campaign",
+            "status": "active",
+            "milestones": [
+              { "name": "Brief", "done": true },
+              { "name": "Launch", "done": false }
+            ]
+          }
+        ]
+      }
+    ],
+    "metrics": {
+      "revenue": { "2023": 1200000, "2024": 1850000 },
+      "nps": 72,
+      "churn_rate": 0.032
+    }
+  }
+}

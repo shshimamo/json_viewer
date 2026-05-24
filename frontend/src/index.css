@@ -15,9 +15,28 @@ body {
   border-bottom: 1px solid #313244;
   padding: 12px 24px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .logo { font-size: 18px; font-weight: bold; color: #89b4fa; }
+
+/* View toggle */
+.view-toggle { display: flex; gap: 2px; background: #313244; border-radius: 6px; padding: 2px; }
+
+.view-btn {
+  background: none;
+  border: none;
+  color: #6c7086;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+.view-btn:hover { color: #cdd6f4; }
+.view-btn.active { background: #45475a; color: #cdd6f4; }
 
 .body { display: flex; flex: 1; overflow: hidden; }
 
@@ -220,6 +239,67 @@ body {
   align-self: flex-end;
 }
 .dialog-submit:hover { background: #b4d0fb; }
+
+/* Table viewer */
+.table-viewer { padding: 4px 0; }
+
+.nested-table {
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 200px;
+}
+
+.nested-table th {
+  background: #181825;
+  color: #6c7086;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 12px;
+  border: 1px solid #313244;
+  text-align: left;
+}
+
+.nested-table td {
+  padding: 4px 12px;
+  border: 1px solid #313244;
+  vertical-align: top;
+}
+
+.nested-table tr:hover > td { background: #1e1e2e; }
+
+.cell-key { color: #89b4fa; white-space: nowrap; }
+.cell-str { color: #a6e3a1; }
+.cell-num { color: #fab387; }
+.cell-bool { color: #f38ba8; }
+.cell-null { color: #6c7086; }
+
+.collapsed-btn {
+  background: none;
+  border: 1px solid #313244;
+  border-radius: 4px;
+  color: #6c7086;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+.collapsed-btn:hover { color: #cdd6f4; border-color: #45475a; }
+
+.inline-json {
+  display: block;
+  margin-top: 6px;
+  padding: 8px;
+  background: #181825;
+  border: 1px solid #313244;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #cdd6f4;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-width: 500px;
+}
 
 .tree { line-height: 1.9; }
 
