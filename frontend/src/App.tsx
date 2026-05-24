@@ -1,8 +1,10 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import './index.css'
 import Sidebar, { type FileEntry } from './Sidebar'
 import JsonViewer from './JsonViewer'
 import TableViewer from './TableViewer'
+import TemplateSelector from './TemplateSelector'
+import { parseTemplate, applyTemplate, type Template } from './transform'
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
 type ViewMode = 'tree' | 'table'
@@ -14,6 +16,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('tree')
+  const [templates, setTemplates] = useState<Template[]>([])
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
 
   useEffect(() => {
     fetch('/api/files')
@@ -23,6 +27,19 @@ export default function App() {
         if (es.length > 0) setSelectedId(es[0].id)
       })
       .catch(e => setError(String(e)))
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/templates')
+      .then(r => r.json())
+      .then((files: { filename: string; content: string }[]) => {
+        const parsed = files.flatMap(f => {
+          const t = parseTemplate(f.filename, f.content)
+          return t ? [t] : []
+        })
+        setTemplates(parsed)
+      })
+      .catch(() => {/* templates optional */})
   }, [])
 
   useEffect(() => {
@@ -100,11 +117,18 @@ export default function App() {
     return () => window.removeEventListener('paste', onPaste)
   }, [saveJson])
 
+  const displayData = useMemo(() => {
+    if (data === null) return null
+    const tmpl = templates.find(t => t.filename === selectedTemplate)
+    if (!tmpl) return data
+    return applyTemplate(data, tmpl)
+  }, [data, selectedTemplate, templates])
+
   return (
     <div className="app">
       <header className="header">
         <span className="logo">jo</span>
-        {data !== null && (
+        {displayData !== null && (
           <div className="view-toggle">
             <button
               className={`view-btn${viewMode === 'tree' ? ' active' : ''}`}
@@ -116,6 +140,11 @@ export default function App() {
             >Table</button>
           </div>
         )}
+        <TemplateSelector
+          templates={templates}
+          selectedFilename={selectedTemplate}
+          onChange={setSelectedTemplate}
+        />
       </header>
       <div className="body">
         <Sidebar
@@ -128,9 +157,9 @@ export default function App() {
         <main className="main">
           {isDragging && <div className="drop-overlay">Drop JSON file here</div>}
           {error && <div className="error">{error}</div>}
-          {data !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={data} /></div>}
-          {data !== null && viewMode === 'table' && <TableViewer value={data} />}
-          {!isDragging && !error && data === null && entries.length === 0 && (
+          {displayData !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={displayData} /></div>}
+          {displayData !== null && viewMode === 'table' && <TableViewer value={displayData} />}
+          {!isDragging && !error && displayData === null && entries.length === 0 && (
             <div className="empty-hint">Drop a JSON file or paste JSON (Ctrl+V / Cmd+V)</div>
           )}
         </main>

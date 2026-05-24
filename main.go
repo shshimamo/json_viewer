@@ -46,6 +46,19 @@ func savedDir() string {
 	return filepath.Join(home, ".jo", "files")
 }
 
+func templateDir() string {
+	if d := os.Getenv("JO_TEMPLATE_DIR"); d != "" {
+		return d
+	}
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".jo", "templates")
+}
+
+type TemplateFile struct {
+	Filename string `json:"filename"`
+	Content  string `json:"content"`
+}
+
 func newID() string {
 	b := make([]byte, 8)
 	rand.Read(b)
@@ -257,6 +270,32 @@ func runServer(cliArgs []string) {
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(entry)
+	})
+
+	mux.HandleFunc("/api/templates", func(w http.ResponseWriter, r *http.Request) {
+		dir := templateDir()
+		var result []TemplateFile
+		if infos, err := os.ReadDir(dir); err == nil {
+			for _, info := range infos {
+				if info.IsDir() || !strings.HasSuffix(info.Name(), ".yaml") {
+					continue
+				}
+				p := filepath.Join(dir, info.Name())
+				data, err := os.ReadFile(p)
+				if err != nil {
+					continue
+				}
+				result = append(result, TemplateFile{
+					Filename: info.Name(),
+					Content:  string(data),
+				})
+			}
+		}
+		if result == nil {
+			result = []TemplateFile{}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(result)
 	})
 
 	mux.HandleFunc("/api/delete", func(w http.ResponseWriter, r *http.Request) {

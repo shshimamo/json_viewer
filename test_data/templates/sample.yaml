@@ -1,0 +1,22 @@
+# nested.json 動作確認用テンプレート
+
+# common: キー名ベースで適用
+# → company.active, milestones[].done に効く
+common:
+  active:
+    "true": "稼働中"
+    "false": "停止"
+  done:
+    "true": "✓"
+    "false": "✗"
+  status:
+    active: "稼働中 (common)"
+    planning: "計画中 (common)"
+
+# fields: ドット区切りのパスで適用（common より優先）
+# → departments 配下の projects.status だけ別ラベルにして優先度を確認
+fields:
+  - path: "departments.projects.status"
+    map:
+      active: "進行中 (fields)"
+      planning: "未着手 (fields)"
