@@ -38,6 +38,19 @@ body {
 .view-btn:hover { color: #cdd6f4; }
 .view-btn.active { background: #45475a; color: #cdd6f4; }
 
+.copy-btn {
+  background: none;
+  border: 1px solid #313244;
+  color: #6c7086;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 4px;
+}
+.copy-btn:hover { color: #cdd6f4; border-color: #45475a; }
+.copy-btn.copied { color: #a6e3a1; border-color: #a6e3a1; }
+
 .body { display: flex; flex: 1; overflow: hidden; }
 
 /* Sidebar */

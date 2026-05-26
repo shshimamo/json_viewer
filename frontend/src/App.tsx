@@ -18,6 +18,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>('tree')
   const [templates, setTemplates] = useState<Template[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetch('/api/files')
@@ -124,21 +125,33 @@ export default function App() {
     return applyTemplate(data, tmpl)
   }, [data, selectedTemplate, templates])
 
+  const handleCopy = useCallback(async () => {
+    if (displayData === null) return
+    await navigator.clipboard.writeText(JSON.stringify(displayData, null, 2))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }, [displayData])
+
   return (
     <div className="app">
       <header className="header">
         <span className="logo">json_viewer</span>
         {displayData !== null && (
-          <div className="view-toggle">
-            <button
-              className={`view-btn${viewMode === 'tree' ? ' active' : ''}`}
-              onClick={() => setViewMode('tree')}
-            >Tree</button>
-            <button
-              className={`view-btn${viewMode === 'table' ? ' active' : ''}`}
-              onClick={() => setViewMode('table')}
-            >Table</button>
-          </div>
+          <>
+            <div className="view-toggle">
+              <button
+                className={`view-btn${viewMode === 'tree' ? ' active' : ''}`}
+                onClick={() => setViewMode('tree')}
+              >Tree</button>
+              <button
+                className={`view-btn${viewMode === 'table' ? ' active' : ''}`}
+                onClick={() => setViewMode('table')}
+              >Table</button>
+            </div>
+            <button className={`copy-btn${copied ? ' copied' : ''}`} onClick={handleCopy}>
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </>
         )}
         <TemplateSelector
           templates={templates}
