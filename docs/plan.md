@@ -1,4 +1,4 @@
-# jo - plan
+# json_viewer - plan
 
 JSON ファイルをブラウザでインタラクティブに閲覧する CLI ツール。[mo](https://github.com/k1LoW/mo) の JSON 版。
 

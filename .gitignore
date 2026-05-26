@@ -1,3 +1,26 @@
+# Binary
+json_viewer
+
+# Frontend
 frontend/node_modules/
 frontend/dist/
-json_viewer
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
