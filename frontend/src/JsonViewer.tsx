@@ -1,9 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect, useContext, createContext } from 'react'
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
 
+type ExpandSignal = { version: number; open: boolean } | null
+const ExpandContext = createContext<ExpandSignal>(null)
+
 function JsonNode({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
   const [open, setOpen] = useState(depth < 2)
+  const signal = useContext(ExpandContext)
+
+  useEffect(() => {
+    if (!signal) return
+    setOpen(signal.open)
+  }, [signal?.version])
 
   if (value === null) return <span className="null">null</span>
   if (typeof value === 'boolean') return <span className="bool">{String(value)}</span>
@@ -62,6 +71,10 @@ function JsonNode({ value, depth = 0 }: { value: JsonValue; depth?: number }) {
   )
 }
 
-export default function JsonViewer({ value }: { value: JsonValue }) {
-  return <JsonNode value={value} />
+export default function JsonViewer({ value, expandSignal }: { value: JsonValue; expandSignal?: ExpandSignal }) {
+  return (
+    <ExpandContext.Provider value={expandSignal ?? null}>
+      <JsonNode value={value} />
+    </ExpandContext.Provider>
+  )
 }
