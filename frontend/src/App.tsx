@@ -19,6 +19,7 @@ export default function App() {
   const [templates, setTemplates] = useState<Template[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [expandSignal, setExpandSignal] = useState<{ version: number; open: boolean } | null>(null)
 
   const handleExpandAll = useCallback(() => {
@@ -158,10 +159,35 @@ export default function App() {
               >Table</button>
             </div>
             {viewMode === 'tree' && (
-              <div className="view-toggle">
-                <button className="view-btn" onClick={handleExpandAll}>Expand All</button>
-                <button className="view-btn" onClick={handleCollapseAll}>Collapse All</button>
-              </div>
+              <>
+                <div className="view-toggle">
+                  <button className="view-btn" onClick={handleExpandAll}>Expand All</button>
+                  <button className="view-btn" onClick={handleCollapseAll}>Collapse All</button>
+                </div>
+                <div className="search-wrap">
+                  <div className="search-input-wrap">
+                    <input
+                      className="search-input"
+                      type="text"
+                      placeholder="Search..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                      <button className="search-clear" onClick={() => setSearchQuery('')}>✕</button>
+                    )}
+                  </div>
+                  <div className="search-help">
+                    <span className="help-icon">?</span>
+                    <div className="help-tooltip">
+                      <div className="help-row"><code>name</code>キーワード検索</div>
+                      <div className="help-row"><code>user.name</code>パス指定（部分一致）</div>
+                      <div className="help-row"><code>users.*.name</code>ワイルドカード</div>
+                      <div className="help-row"><code>users.0.name</code>インデックス指定</div>
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
             <button className={`copy-btn${copied ? ' copied' : ''}`} onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy'}
@@ -185,7 +211,7 @@ export default function App() {
         <main className="main">
           {isDragging && <div className="drop-overlay">Drop JSON file here</div>}
           {error && <div className="error">{error}</div>}
-          {displayData !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={displayData} expandSignal={expandSignal} /></div>}
+          {displayData !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={displayData} expandSignal={expandSignal} searchQuery={searchQuery} /></div>}
           {displayData !== null && viewMode === 'table' && <TableViewer value={displayData} />}
           {!isDragging && !error && displayData === null && entries.length === 0 && (
             <div className="empty-hint">Drop a JSON file or paste JSON (Ctrl+V / Cmd+V)</div>
