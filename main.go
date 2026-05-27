@@ -59,6 +59,24 @@ type TemplateFile struct {
 	Content  string `json:"content"`
 }
 
+func collectJSONPaths(arg string) []string {
+	info, err := os.Stat(arg)
+	if err != nil {
+		return nil
+	}
+	if !info.IsDir() {
+		return []string{arg}
+	}
+	var paths []string
+	filepath.WalkDir(arg, func(p string, d fs.DirEntry, err error) error {
+		if err == nil && !d.IsDir() && strings.HasSuffix(p, ".json") {
+			paths = append(paths, p)
+		}
+		return nil
+	})
+	return paths
+}
+
 func newID() string {
 	b := make([]byte, 8)
 	rand.Read(b)
@@ -92,15 +110,17 @@ func main() {
 				fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 				continue
 			}
-			resp, err := http.Post(
-				"http://"+addr+"/api/add?path="+url.QueryEscape(abs),
-				"", nil,
-			)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
-				continue
+			for _, p := range collectJSONPaths(abs) {
+				resp, err := http.Post(
+					"http://"+addr+"/api/add?path="+url.QueryEscape(p),
+					"", nil,
+				)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
+					continue
+				}
+				resp.Body.Close()
 			}
-			resp.Body.Close()
 		}
 		browser.OpenURL("http://" + addr)
 		return
@@ -120,7 +140,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "json_viewer: %v\n", err)
 			os.Exit(1)
 		}
-		serverArgs = append(serverArgs, abs)
+		serverArgs = append(serverArgs, collectJSONPaths(abs)...)
 	}
 
 	cmd := exec.Command(exe, serverArgs...)
