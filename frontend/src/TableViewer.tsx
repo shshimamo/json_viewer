@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useContext, createContext } from 'react'
 
 type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue }
 
-const MAX_DEPTH = 3
+const MaxDepthContext = createContext(3)
 
 function isPrimitive(v: JsonValue): boolean {
   return v === null || typeof v !== 'object'
@@ -34,13 +34,14 @@ function CollapsedValue({ value }: { value: JsonValue }) {
 }
 
 function TableCell({ value, depth }: { value: JsonValue; depth: number }) {
+  const maxDepth = useContext(MaxDepthContext)
   if (isPrimitive(value)) {
     return <span className={`cell-${typeof value === 'string' ? 'str' : typeof value === 'number' ? 'num' : typeof value === 'boolean' ? 'bool' : 'null'}`}>
       {formatPrimitive(value)}
     </span>
   }
 
-  if (depth >= MAX_DEPTH) {
+  if (depth >= maxDepth) {
     return <CollapsedValue value={value} />
   }
 
@@ -76,10 +77,12 @@ function TableNode({ value, depth }: { value: JsonValue; depth: number }) {
   )
 }
 
-export default function TableViewer({ value }: { value: JsonValue }) {
+export default function TableViewer({ value, maxDepth = 3 }: { value: JsonValue; maxDepth?: number }) {
   return (
-    <div className="table-viewer">
-      <TableNode value={value} depth={0} />
-    </div>
+    <MaxDepthContext.Provider value={maxDepth}>
+      <div className="table-viewer">
+        <TableNode value={value} depth={0} />
+      </div>
+    </MaxDepthContext.Provider>
   )
 }

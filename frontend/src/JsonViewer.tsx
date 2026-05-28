@@ -7,6 +7,7 @@ const ExpandContext = createContext<ExpandSignal>(null)
 
 type SearchState = { query: string; isPath: boolean; segments: string[] }
 const SearchContext = createContext<SearchState>({ query: '', isPath: false, segments: [] })
+const DefaultDepthContext = createContext(2)
 
 function matchesPathPattern(nodePath: string[], pattern: string[]): boolean {
   if (pattern.length > nodePath.length) return false
@@ -54,7 +55,8 @@ function Highlight({ text, query }: { text: string; query: string }) {
 }
 
 function JsonNode({ value, depth = 0, currentPath = [] }: { value: JsonValue; depth?: number; currentPath?: string[] }) {
-  const [open, setOpen] = useState(depth < 2)
+  const defaultDepth = useContext(DefaultDepthContext)
+  const [open, setOpen] = useState(depth < defaultDepth)
   const signal = useContext(ExpandContext)
   const search = useContext(SearchContext)
 
@@ -143,7 +145,7 @@ function JsonNode({ value, depth = 0, currentPath = [] }: { value: JsonValue; de
   )
 }
 
-export default function JsonViewer({ value, expandSignal, searchQuery = '' }: { value: JsonValue; expandSignal?: ExpandSignal; searchQuery?: string }) {
+export default function JsonViewer({ value, expandSignal, searchQuery = '', defaultDepth = 2 }: { value: JsonValue; expandSignal?: ExpandSignal; searchQuery?: string; defaultDepth?: number }) {
   const searchState = useMemo<SearchState>(() => {
     if (!searchQuery) return { query: '', isPath: false, segments: [] }
     const isPath = searchQuery.includes('.')
@@ -153,7 +155,9 @@ export default function JsonViewer({ value, expandSignal, searchQuery = '' }: { 
   return (
     <ExpandContext.Provider value={expandSignal ?? null}>
       <SearchContext.Provider value={searchState}>
-        <JsonNode value={value} />
+        <DefaultDepthContext.Provider value={defaultDepth}>
+          <JsonNode value={value} />
+        </DefaultDepthContext.Provider>
       </SearchContext.Provider>
     </ExpandContext.Provider>
   )

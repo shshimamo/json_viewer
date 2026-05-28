@@ -181,6 +181,26 @@ func runServer(cliArgs []string) {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/api/config", func(w http.ResponseWriter, r *http.Request) {
+		treeDepth := 2
+		tableDepth := 3
+		if v := os.Getenv("JSON_VIEWER_TREE_DEPTH"); v != "" {
+			if n, err := fmt.Sscan(v, &treeDepth); n == 0 || err != nil {
+				treeDepth = 2
+			}
+		}
+		if v := os.Getenv("JSON_VIEWER_TABLE_DEPTH"); v != "" {
+			if n, err := fmt.Sscan(v, &tableDepth); n == 0 || err != nil {
+				tableDepth = 3
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]int{
+			"treeDepth":  treeDepth,
+			"tableDepth": tableDepth,
+		})
+	})
+
 	mux.HandleFunc("/api/files", func(w http.ResponseWriter, r *http.Request) {
 		mu.RLock()
 		defer mu.RUnlock()

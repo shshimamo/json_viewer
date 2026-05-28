@@ -16,6 +16,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('tree')
+  const [treeDepth, setTreeDepth] = useState(2)
+  const [tableDepth, setTableDepth] = useState(3)
   const [templates, setTemplates] = useState<Template[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
@@ -28,6 +30,16 @@ export default function App() {
 
   const handleCollapseAll = useCallback(() => {
     setExpandSignal(s => ({ version: (s?.version ?? 0) + 1, open: false }))
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/config')
+      .then(r => r.json())
+      .then((cfg: { treeDepth: number; tableDepth: number }) => {
+        setTreeDepth(cfg.treeDepth)
+        setTableDepth(cfg.tableDepth)
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -211,8 +223,8 @@ export default function App() {
         <main className="main">
           {isDragging && <div className="drop-overlay">Drop JSON file here</div>}
           {error && <div className="error">{error}</div>}
-          {displayData !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={displayData} expandSignal={expandSignal} searchQuery={searchQuery} /></div>}
-          {displayData !== null && viewMode === 'table' && <TableViewer value={displayData} />}
+          {displayData !== null && viewMode === 'tree' && <div className="tree"><JsonViewer value={displayData} expandSignal={expandSignal} searchQuery={searchQuery} defaultDepth={treeDepth} /></div>}
+          {displayData !== null && viewMode === 'table' && <TableViewer value={displayData} maxDepth={tableDepth} />}
           {!isDragging && !error && displayData === null && entries.length === 0 && (
             <div className="empty-hint">Drop a JSON file or paste JSON (Ctrl+V / Cmd+V)</div>
           )}
