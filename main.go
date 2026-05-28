@@ -24,6 +24,9 @@ import (
 //go:embed all:frontend/dist
 var frontendFS embed.FS
 
+//go:embed config.json
+var configJSON []byte
+
 const addr = "localhost:6276"
 
 type FileEntry struct {
@@ -57,6 +60,33 @@ func templateDir() string {
 type TemplateFile struct {
 	Filename string `json:"filename"`
 	Content  string `json:"content"`
+}
+
+type Config struct {
+	TreeDepth   int    `json:"treeDepth"`
+	TableDepth  int    `json:"tableDepth"`
+	SavedDir    string `json:"savedDir"`
+	TemplateDir string `json:"templateDir"`
+}
+
+func loadConfig() {
+	var cfg Config
+	if err := json.Unmarshal(configJSON, &cfg); err != nil {
+		return
+	}
+	setIfEmpty := func(key, val string) {
+		if os.Getenv(key) == "" && val != "" {
+			os.Setenv(key, val)
+		}
+	}
+	if os.Getenv("JSON_VIEWER_TREE_DEPTH") == "" && cfg.TreeDepth != 0 {
+		os.Setenv("JSON_VIEWER_TREE_DEPTH", fmt.Sprintf("%d", cfg.TreeDepth))
+	}
+	if os.Getenv("JSON_VIEWER_TABLE_DEPTH") == "" && cfg.TableDepth != 0 {
+		os.Setenv("JSON_VIEWER_TABLE_DEPTH", fmt.Sprintf("%d", cfg.TableDepth))
+	}
+	setIfEmpty("JSON_VIEWER_DIR", cfg.SavedDir)
+	setIfEmpty("JSON_VIEWER_TEMPLATE_DIR", cfg.TemplateDir)
 }
 
 func collectJSONPaths(arg string) []string {
@@ -93,6 +123,7 @@ func isServerRunning() bool {
 }
 
 func main() {
+	loadConfig()
 	args := os.Args[1:]
 
 	// Server mode (spawned by client)
